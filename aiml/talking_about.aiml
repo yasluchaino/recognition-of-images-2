@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+<aiml>
+
+	<category>
+		<pattern>* о чем *</pattern>
+		<template><srai>what are we talking about</srai></template>
+	</category>
+	
+	<category>
+		<pattern>о чем *</pattern>
+		<template><srai>what are we talking about</srai></template>
+	</category>
+
+	<category>
+		<pattern>* о чем</pattern>
+		<template>
+			<srai>what are we talking about</srai>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>what are we talking about</pattern>
+		<template>
+			<condition name="smiley_name">
+				<li value="undefined">Да пока просто болтаем</li>
+				<li>
+					<srai>translate smiley</srai>
+					Мы говорили про<get name="translated_smiley_name"/>
+				</li>
+        <li>
+          <srai>translate smiley</srai>
+          Про <get name="translated_smiley_name"/>
+        </li>
+			</condition>
+		</template>
+	</category>
+</aiml>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+<aiml>
+	<category>
+		<pattern>translate smiley</pattern>
+		<template>
+			<think>
+			<condition name="smiley_name">
+				<li value="happy"><set name="translated_smiley_name">счастливый смайл 😄</set></li>
+				<li value="angry"><set name="translated_smiley_name">злой смайл 😠</set></li>
+				<li value="sad"><set name="translated_smiley_name">грустный смайл ☹️ </set></li>
+				<li value="tongue"><set name="translated_smiley_name">язык 😛</set></li>
+				<li value="pokerface"><set name="translated_smiley_name">смайл без эмоций 😐</set></li>
+				<li value="smile"><set name="translated_smiley_name">улыбающийся смайл 🙂</set></li>
+				<li value="surprised"><set name="translated_smiley_name">удивлённый смайл 😮</set></li>
+				<li value="wink"><set name="translated_smiley_name">подмигивающий смайл 😉</set></li>
+			</condition>
+			</think>
+		</template>
+	</category>
+</aiml>

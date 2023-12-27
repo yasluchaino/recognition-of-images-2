@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+<aiml>
+	<category>
+		<pattern>predicted *</pattern>
+		<template>
+			<think>
+				<set name = "smiley_name"><star/></set>
+				<set name = "fact_deep">1</set>
+				<srai>translate smiley</srai>
+			</think>
+			<random>
+				<li>Мне кажется, это <get name="translated_smiley_name"/></li>
+				<li>Это похоже на  <get name="translated_smiley_name"/></li>
+				<li>Я думаю, это <get name="translated_smiley_name"/></li>
+				<li>Выглядит как <get name="translated_smiley_name"/></li>
+				<li>Я бы сказал, это <get name="translated_smiley_name"/></li>
+			</random>
+		</template>
+	</category>
+
+	
+	<category>
+		<pattern>* о ней</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* о ней *</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+
+	<category>
+		<pattern>* об этом</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* об этом *</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* о него</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* о него *</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* о нем</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* о нем *</pattern>
+		<template>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+</aiml>

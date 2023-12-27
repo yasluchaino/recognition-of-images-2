@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+<aiml>
+	<category>
+		<pattern>* еще *</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* еще</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>еще *</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>еще</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* больше *</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* больше</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>больше *</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>больше</pattern>
+		<template><srai>tell more</srai></template>
+	</category>
+	
+	<category>
+		<pattern>tell more</pattern>
+		<template>
+			<condition name="fact_deep">
+				<li value ="end"><srai>nothing to say</srai></li>
+				<li><srai><get name="smiley_name"/><get name="fact_deep"/></srai></li>
+			</condition>
+		</template>
+	</category>
+
+</aiml>

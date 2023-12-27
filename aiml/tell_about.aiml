@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+<aiml>
+
+	<category>
+		<pattern>* счастливый смайл *</pattern>
+		<template><srai>tell about happy</srai></template>
+	</category>
+	<category>
+		<pattern>счастливый смайл *</pattern>
+		<template><srai>tell about happy</srai></template>
+	</category>
+	<category>
+		<pattern>* счастливый смайл</pattern>
+		<template><srai>tell about happy</srai></template>
+	</category>
+	<category>
+		<pattern>счастливый смайл</pattern>
+		<template><srai>tell about happy</srai></template>
+	</category>
+  <category>
+    <pattern>* счастливый смайлик *</pattern>
+    <template>
+      <srai>tell about happy</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>счастливый смайлик *</pattern>
+    <template>
+      <srai>tell about happy</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>* счастливый смайлик</pattern>
+    <template>
+      <srai>tell about happy</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>счастливый смайлик</pattern>
+    <template>
+      <srai>tell about happy</srai>
+    </template>
+  </category>
+  
+	<category>
+		<pattern>* злой смайл *</pattern>
+		<template><srai>tell about angry</srai></template>
+	</category>
+	<category>
+		<pattern>злой смайл *</pattern>
+		<template><srai>tell about angry</srai></template>
+	</category>
+	<category>
+		<pattern>* злой смайл</pattern>
+		<template><srai>tell about angry</srai></template>
+	</category>
+	<category>
+		<pattern>злой смайл</pattern>
+		<template><srai>tell about angry</srai></template>
+	</category>
+
+  <category>
+    <pattern>* злой смайлик *</pattern>
+    <template>
+      <srai>tell about angry</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>злой смайлик *</pattern>
+    <template>
+      <srai>tell about angry</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>* злой смайлик</pattern>
+    <template>
+      <srai>tell about angry</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>злой смайлик</pattern>
+    <template>
+      <srai>tell about angry</srai>
+    </template>
+  </category>
+  
+  
+  
+  <category>
+		<pattern>* грустный смайл *</pattern>
+		<template><srai>tell about sad</srai></template>
+	</category>
+	<category>
+		<pattern>грустный смайл *</pattern>
+		<template><srai>tell about sad</srai></template>
+	</category>
+	<category>
+		<pattern>* грустный смайл</pattern>
+		<template><srai>tell about sad</srai></template>
+	</category>
+	<category>
+		<pattern>грустный смайл</pattern>
+		<template><srai>tell about sad</srai></template>
+	</category>
+
+  <category>
+    <pattern>* грустный смайлик *</pattern>
+    <template>
+      <srai>tell about sad</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>грустный смайлик *</pattern>
+    <template>
+      <srai>tell about sad</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>* грустный смайлик</pattern>
+    <template>
+      <srai>tell about sad</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>грустный смайлик</pattern>
+    <template>
+      <srai>tell about sad</srai>
+    </template>
+  </category>
+
+
+
+    <category>
+		<pattern>* язык *</pattern>
+		<template><srai>tell about tongue</srai></template>
+	</category>
+	<category>
+		<pattern>язык *</pattern>
+		<template><srai>tell about tongue</srai></template>
+	</category>
+	<category>
+		<pattern>* язык</pattern>
+		<template><srai>tell about tongue</srai></template>
+	</category>
+	<category>
+		<pattern>язык</pattern>
+		<template><srai>tell about tongue</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* Без эмоций *</pattern>
+		<template><srai>tell about pokerface</srai></template>
+	</category>
+	<category>
+		<pattern>Без эмоций *</pattern>
+		<template><srai>tell about pokerface</srai></template>
+	</category>
+	<category>
+		<pattern>* Без эмоций</pattern>
+		<template><srai>tell about pokerface</srai></template>
+	</category>
+	<category>
+		<pattern>Без эмоций</pattern>
+		<template><srai>tell about pokerface</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* улыбающийся смайл *</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>улыбающийся смайл *</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>* улыбающийся смайл</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>улыбающийся смайл</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+  
+  <category>
+		<pattern>* улыбающийся смайлик *</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>улыбающийся смайлик *</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>* улыбающийся смайлик</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	<category>
+		<pattern>улыбающийся смайлик</pattern>
+		<template><srai>tell about smile</srai></template>
+	</category>
+	
+	<category>
+		<pattern>* удивлённый смайл *</pattern>
+		<template><srai>tell about surprised</srai></template>
+	</category>
+	<category>
+		<pattern>удивлённый смайл *</pattern>
+		<template><srai>tell about surprised</srai></template>
+	</category>
+	<category>
+		<pattern>* удивлённый смайл</pattern>
+		<template><srai>tell about surprised</srai></template>
+	</category>
+	<category>
+		<pattern>удивлённый смайл</pattern>
+		<template><srai>tell about surprised</srai></template>
+	</category>
+
+  <category>
+    <pattern>* удивлённый смайлик *</pattern>
+    <template>
+      <srai>tell about surprised</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>удивлённый смайлик *</pattern>
+    <template>
+      <srai>tell about surprised</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>* удивлённый смайлик</pattern>
+    <template>
+      <srai>tell about surprised</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>удивлённый смайлик</pattern>
+    <template>
+      <srai>tell about surprised</srai>
+    </template>
+  </category>
+  
+  
+	<category>
+		<pattern>* подмигивающий смайл *</pattern>
+		<template><srai>tell about wink</srai></template>
+	</category>
+	<category>
+		<pattern>подмигивающий смайл *</pattern>
+		<template><srai>tell about wink</srai></template>
+	</category>
+	<category>
+		<pattern>* подмигивающий смайл</pattern>
+		<template><srai>tell about wink</srai></template>
+	</category>
+	<category>
+		<pattern>подмигивающий смайл</pattern>
+		<template><srai>tell about wink</srai></template>
+	</category>
+
+  <category>
+    <pattern>* подмигивающий смайлик *</pattern>
+    <template>
+      <srai>tell about wink</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>подмигивающий смайлик *</pattern>
+    <template>
+      <srai>tell about wink</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>* подмигивающий смайлик</pattern>
+    <template>
+      <srai>tell about wink</srai>
+    </template>
+  </category>
+  <category>
+    <pattern>подмигивающий смайлик</pattern>
+    <template>
+      <srai>tell about wink</srai>
+    </template>
+  </category>
+
+	
+	<category>
+		<pattern>tell about *</pattern>
+		<template>
+			<think>
+				<set name = "fact_deep">1</set>
+				<set name = "smiley_name"><star/></set>
+			</think>
+			<srai><get name="smiley_name"/><get name="fact_deep"/></srai>
+		</template>
+	</category>
+</aiml>

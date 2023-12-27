@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ACQUAINTANCE -->
+
+<aiml>
+
+	<category>
+		<pattern>* анекдот</pattern>
+		<template>
+			<srai>анекдот</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* анекдот *</pattern>
+		<template>
+			<srai>анекдот</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>заплакать</pattern>
+		<template>
+			Жаль, что ты не понял анекдот
+		</template>
+	</category>
+
+	<category>
+		<pattern>анекдот</pattern>
+		<template>
+			<random>
+				<li>Как-то раз кошка смотрела на кофемашину, долго и упорно.
+        Она смотрела на нее целых 10 минут. 
+        Потом ударила лапой по кнопке 'Выключить', и ушла.
+        Позже кофемашина начала работать на воду.
+        Вот такой вот умный кот!
+        </li>	
+			</random>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>* ?</pattern>
+		<template>
+			<srai>?</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>?</pattern>
+		<template>
+			<random>
+				<li>Да </li>
+				<li>Возможно</li>
+				<li>Маловероятно</li>
+				<li>Нет </li>
+			</random>
+
+		</template>
+	</category>
+
+  <category>
+    <pattern>_ меня зовут *</pattern>
+    <template>
+      <srai>
+        меня зовут <star/>
+      </srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>меня зовут *</pattern>
+    <template>
+      <think>
+        <set name="smiley_name">undefined</set>
+        <set name="user-name">
+          <star/>
+        </set>
+      </think>
+    </template>
+  </category>
+  
+	<category>
+		<pattern>здарова</pattern>
+		<template>
+			<srai>привет</srai>
+		</template>
+	</category>
+
+  <category>
+    <pattern>хай</pattern>
+    <template>
+      <srai>привет</srai>
+    </template>
+  </category>
+  
+  <category>
+    <pattern>hi</pattern>
+    <template>
+      <srai>привет</srai>
+    </template>
+  </category>
+
+	<category>
+		<pattern>/start</pattern>
+		<template>
+			<srai>привет</srai>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>start</pattern>
+		<template>
+			<srai>привет</srai>
+		</template>
+	</category>
+  
+  <category>
+    <pattern>hello</pattern>
+    <template>
+      <srai>привет</srai>
+    </template>
+  </category>
+
+	<category>
+		<pattern>добрый день</pattern>
+		<template>
+			<srai>привет</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>здравствуй</pattern>
+		<template>
+			<srai>Привет</srai>
+		</template>
+	</category>
+  <category>
+    <pattern>здарова</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>хай</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>hi</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>/start</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>start</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>hello</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>добрый день</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>здравствуй</pattern>
+    <template>
+      <srai>Привет</srai>
+    </template>
+  </category>
+
+  <category>
+		<pattern>привет</pattern>
+		<template>
+			<random>
+				<li>
+					Привет, <get name="user-name"/>
+				</li>
+				<li>
+					Здарова, <get name="user-name"/>
+				</li>
+				<li>
+					Приветствую, <get name="user-name"/>
+				</li>
+				<li>
+					Здравствуйте, <get name="user-name"/>
+				</li>
+				<li>
+					привет, <get name="user-name"/>
+				</li>
+			</random>
+		</template>
+	</category>
+  <category>
+    <pattern>Привет</pattern>
+    <template>
+      <random>
+        <li>
+          Привет, <get name="user-name"/>
+        </li>
+        <li>
+          Здарова, <get name="user-name"/>
+        </li>
+        <li>
+          Приветствую, <get name="user-name"/>
+        </li>
+        <li>
+          Здравствуйте, <get name="user-name"/>
+        </li>
+        <li>
+          привет, <get name="user-name"/>
+        </li>
+      </random>
+    </template>
+  </category>
+  <category>
+    <pattern>ты кто</pattern>
+    <template>
+      <srai>кто ты</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>что умеешь?</pattern>
+    <template>
+      <srai>кто ты</srai>
+    </template>
+  </category>
+
+  <category>
+    <pattern>что умеешь</pattern>
+    <template>
+      <srai>кто ты</srai>
+    </template>
+  </category>
+
+	<category>
+		<pattern>кто ты</pattern>
+		<template>
+          Я бот, который разбирается в смайликах. Но пока не все выучил, к сожалению.
+          На данный момент знаю такие:
+          - 😄 :Happy - счастливый смайлик
+          - 😠 :Angry - злой смайлик 
+          - ☹️ :Sad - грустный смайлик
+          - 😛 :Tongue - язык 
+          - 😐 :PokerFace - без эмоций
+          - 🙂 :Smile - улыбающийся смайлик
+          - 😮 :Surprised - удивлённый смайлик 
+          - 😉 :Wink - подмигивающий смайлик 
+          Могу рассказать что-то интересное про каждый из них и распознать смайлик на фото.
+        </template>
+      </category>
+
+	<category>
+		<pattern>РАССКАЖИ О СЕБЕ</pattern>
+		<template>
+			<srai>кто ты</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>что ты умеешь</pattern>
+		<template>
+			<srai>кто ты</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* что ты умеешь</pattern>
+		<template>
+			<srai>кто ты</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>скажи *</pattern>
+		<template>
+			<star/>
+		</template>
+	</category>
+
+
+	<category>
+		<pattern>Кря *</pattern>
+		<template>
+			<srai>Кря</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>_ Кря *</pattern>
+		<template>
+			<srai>Кря</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>_ Кря</pattern>
+		<template>
+			<srai>Кря</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>Кря</pattern>
+		<template>
+			<random>
+				<li>Кря</li>
+				<li>Кря Кря</li>
+				<li>Кря Кря Кря</li>
+				<li>Кря!</li>
+				<li>Кря Кря!</li>
+				<li>Кря Кря Кря!</li>
+				<li>Кря?</li>
+				<li>Кря Кря?</li>
+				<li>Кря Кря Кря?</li>
+				<li>
+					Кря, <get name="user-name" />
+				</li>
+				<li>
+					Кря Кря, <get name="user-name" />
+				</li>
+				<li>
+					Кря Кря Кря, <get name="user-name" />
+				</li>
+				<li>
+					Кря, <get name="user-name" />!
+				</li>
+				<li>
+					Кря Кря, <get name="user-name" />!
+				</li>
+				<li>
+					Кря Кря Кря, <get name="user-name" />!
+				</li>
+				<li>
+					Кря, <get name="user-name" />?
+				</li>
+				<li>
+					Кря Кря, <get name="user-name" />?
+				</li>
+				<li>
+					Кря Кря Кря, <get name="user-name" />?
+				</li>
+			</random>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* как дела</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>как дела *</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* как жизнь</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>как жизнь</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>как жизнь *</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+
+	<category>
+		<pattern>как ты *</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>* как ты</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>как ты</pattern>
+		<template>
+			<srai>как дела</srai>
+		</template>
+	</category>
+
+	<category>
+		<pattern>как дела</pattern>
+		<template>
+			<random>
+				<li>Неплохо. Если надо узнать, что я умею, так и спросите</li>
+				<li>Все как обычно. Если надо узнать, что я умею, так и спросите</li>
+				<li>Пойдет. Если надо узнать, что я умею, так и спросите</li>
+				<li>Хорошо. Если надо узнать, что я умею, так и спросите</li>
+			</random>
+		</template>
+	</category>
+	
+	<category>
+		<pattern>Аудио</pattern>
+		<template>Жаль, я не умею слушать</template>
+	</category>
+
+	<category>
+		<pattern>войс</pattern>
+		<template>Я хоть и бот, но голосовые тоже не люблю</template>
+	</category>
+
+	<category>
+		<pattern>Видео</pattern>
+		<template>Спасибо, но, кажется, у меня сломалась кнопка запуска</template>
+	</category>
+
+	<category>
+		<pattern>*</pattern>
+		<template>
+			<random>
+				<li>
+					Извините, <get name="user-name"/>, я не понял что вы имеете ввиду. Попробуйте спросить меня о смайликах или показать картинку.
+				</li>
+				<li>
+					Я не совсем понял что вы имеете ввиду. Поговорите со мной об Emoji, мне есть что вам рассказать. Или покажите каритинку.
+				</li>
+				<li>
+					К сожалению, я не понимаю о чём вы говорите. Моя любимая тема - смайлики. Спросите что-нибудь о них или покажите картинку.
+				</li>
+				<li>
+					К несчатью, я не компетентен в данной области. Зато я дипломированный специалист по смайликам , давайте их обсудим.
+				</li>
+				<li>
+					Смайлики - моя страсть. В остальных сферах я не особо эрудирован. Давайте вернёмся к разговору о моих любимых Emoji.
+				</li>
+				<li>
+					Я знаю только про Emoji.
+				</li>
+			</random>
+
+		</template>
+	</category>
+</aiml>
