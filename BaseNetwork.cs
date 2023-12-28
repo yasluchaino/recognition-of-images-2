@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace NeuralNetwork1
+namespace AIMLTGBot
 {
+
     public delegate void TrainProgressHandler(double progress, double error, TimeSpan time);
     /// <summary>
     /// Базовый класс для реализации как самодельного персептрона, так и обёртки для ActivationNetwork из Accord.Net
@@ -20,7 +25,7 @@ namespace NeuralNetwork1
         ///     Для реализации распараллеливания можно использовать System.Threading.Tasks.Parallel.For https://metanit.com/sharp/tutorial/12.4.php
         /// </param>
         /// <returns>Количество итераций для достижения заданного уровня ошибки</returns>
-        public abstract int Train(Sample sample, double acceptableError, bool parallel);
+        public abstract int Train(Sample sample, double acceptableError, bool parallel, double learningRate);
         /// <summary>
         /// Обучение сети на основе датасета
         /// </summary>
@@ -29,7 +34,7 @@ namespace NeuralNetwork1
         /// <param name="acceptableError">Желаемый уровень ошибки</param>
         /// <param name="parallel">Распараллеливать ли обучение</param>
         /// <returns></returns>
-        public abstract double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel);
+        public abstract double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel, double learningRate);
 
         /// <summary>
         /// Подсчёт результата работы сети на данном входе.
@@ -43,7 +48,7 @@ namespace NeuralNetwork1
         /// </summary>
         /// <param name="sample">Фигура, которую необходимо определить</param>
         /// <returns></returns>
-        public FigureType Predict(Sample sample)
+        public SymbolType Predict(Sample sample)
         {
             return sample.ProcessPrediction(Compute(sample.input));
         }

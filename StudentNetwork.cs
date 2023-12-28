@@ -1,248 +1,329 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Threading;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace NeuralNetwork1
+
+namespace AIMLTGBot
 {
     public class StudentNetwork : BaseNetwork
     {
-        double[][,] weight;
-        double[][] layers;
-        double[][] errors;
-        double step = 0.15;
-
-        bool parallel = false;
-
-        Stopwatch stopWatch = new Stopwatch();
-
-        public StudentNetwork(int[] structure)
+        private class NNLayer
         {
-            this.layers = new double[structure.Length][];
-            this.layers[0] = new double[structure[0] + 1]; // +1 bios
-            this.layers[0][structure[0]] = 1; // bios
-
-            this.errors = new double[structure.Length][];
-            //this.errors[0] = new float[layers[0] + 1];
-
-            this.weight = new double[structure.Length - 1][,];
-            for (UInt16 i = 1; i < structure.Length; i++)
-            {
-                this.layers[i] = new double[structure[i] + (structure.Length - 1 == i ? 0 : 1)]; // +1 bios, but a last layer
-                this.errors[i] = new double[structure[i]];
-                if (structure.Length - 1 != i) this.layers[i][structure[i]] = 1; // bios
-                this.weight[i - 1] = new double[structure[i - 1] + 1, structure[i]]; // +1 bios               
-            }
-            Randomize();
+            public double[,] weights { get; set; }
+            public double[] biases { get; set; }
         }
 
-        private void Randomize()
+        public Stopwatch stopWatch = new Stopwatch();
+
+        private List<NNLayer> layers;
+
+        private int batchSize;
+
+        private double learningRate;
+
+        public StudentNetwork(int[] structure, int batchSize = 10, double learningRate = 0.1)
         {
-            Random r = new Random();
-            if (parallel)
+            Random random = new Random();
+            layers = new List<NNLayer>();
+
+            this.batchSize = batchSize;
+            this.learningRate = learningRate;
+
+            for (int i = 0; i < structure.Length - 1; i++)
             {
-                Parallel.ForEach(this.weight, w => {
-                    for (int i = 0; i < w.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < w.GetLength(1); j++)
-                        {
-                            w[i, j] = r.NextDouble() * 2 - 1;
-                        }
-                    }
-                });
-            }
-            else
-            {
-                foreach (var w in weight)
+                var newLayer = new NNLayer
                 {
-                    for (int i = 0; i < w.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < w.GetLength(1); j++)
-                        {
-                            w[i, j] = r.NextDouble() * 2 - 1;
-                        }
-                    }
-                }         
+                    weights = new double[structure[i], structure[i + 1]],
+                    biases = new double[structure[i + 1]]
+                };
+
+                for (int j = 0; j < newLayer.biases.Length; j++)
+                {
+                    newLayer.biases[j] = random.NextDouble() * 0.2 - 0.1;
+
+                    for (int k = 0; k < newLayer.weights.GetLength(0); k++)
+                        newLayer.weights[k, j] = random.NextDouble() * 0.2 - 0.1;
+                }
+
+                layers.Add(newLayer);
             }
         }
 
-        private void PushForward()
+        private double Activation(double x) => 1 / (1 + Math.Exp(-x));
+
+        private double ActivationDerivative(double y) => y * (1 - y);
+
+        public override int Train(Sample sample, double acceptableError, bool parallel, double learningRate = 0.01)
         {
-            if (parallel)
+            SamplesSet samplesSet = new SamplesSet();
+            samplesSet.AddSample(sample);
+
+            int iter = 0;
+            while (true)
             {
-                for (int k = 1; k < layers.Length; k++)
-                {
-                    Parallel.For(0, weight[k - 1].GetLength(1), j =>
-                    {
-                        layers[k][j] = 0;
-                        for (int i = 0; i < weight[k - 1].GetLength(0); i++) //layers[k-1].Length
-                        {
-                            layers[k][j] += weight[k - 1][i, j] * layers[k - 1][i];
-                        }
-                        layers[k][j] = Sigmoid(layers[k][j]);
-                    });
-                }
-            }
-            else
-            {
-                for (int k = 1; k < layers.Length; k++)
-                {
-                    for (int j = 0; j < weight[k - 1].GetLength(1); j++) //layers[k].Length
-                    {
-                        layers[k][j] = 0;
-                        for (int i = 0; i < weight[k - 1].GetLength(0); i++) //layers[k-1].Length
-                        {
-                            layers[k][j] += weight[k - 1][i, j] * layers[k - 1][i];
-                        }
-                        layers[k][j] = Sigmoid(layers[k][j]);
-                    }
-                }
+                var error = parallel ? TrainingRunParallel(samplesSet) : TrainingRun(samplesSet);
+                Console.WriteLine(error);
+                iter++;
+
+                if (error <= acceptableError) return iter;
             }
         }
 
-        private double Sigmoid(double value)
+        public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel, double learningRate = 0.01)
         {
-            return 1f / (1f + Math.Exp(-value));
-        }
-
-        private void BackPropagation(uint r_i)
-        {
-            if (parallel)
-            {
-                // last layer
-                int k = layers.Length - 1;
-                for (int j = 0; j < layers[k].Length; j++)
-                {
-                    errors[k][j] = -(layers[k][j] * (1f - layers[k][j])) * ((r_i == j ? 1f : 0f) - layers[k][j]);
-                }
-
-                // inner layers
-                for (k = layers.Length - 2; k > 0; k--)
-                {
-                    Parallel.For(0, layers[k].Length - 1, i =>
-                    {
-                        errors[k][i] = 0f;
-                        for (int j = 0; j < weight[k].GetLength(1); j++)
-                        {
-                            errors[k][i] += weight[k][i, j] * errors[k + 1][j];
-                        }
-                        errors[k][i] *= (layers[k][i] * (1f - layers[k][i]));
-                    });
-
-                }
-
-                // tuning
-                for (k = 0; k < weight.Length; k++)
-                {
-                    Parallel.For(0, weight[k].GetLength(1), j =>
-                    {
-                        for (int i = 0; i < weight[k].GetLength(0); i++)
-                        {
-                            weight[k][i, j] += -step * layers[k][i] * errors[k + 1][j];
-                        }
-                    });
-                }
-            }
-            else
-            {
-                // last layer
-                int k = layers.Length - 1;
-                for (int j = 0; j < layers[k].Length; j++)
-                {
-                    errors[k][j] = -(layers[k][j] * (1f - layers[k][j])) * ((r_i == j ? 1f : 0f) - layers[k][j]);
-                }
-
-                // inner layers
-                for (k = layers.Length - 2; k > 0; k--)
-                {
-                    for (int i = 0; i < layers[k].Length - 1; i++)
-                    {
-                        errors[k][i] = 0f;
-                        for (int j = 0; j < weight[k].GetLength(1); j++)
-                        {
-                            errors[k][i] += weight[k][i, j] * errors[k + 1][j];
-                        }
-                        errors[k][i] *= (layers[k][i] * (1f - layers[k][i]));
-                    }
-                }
-
-                // tuning
-                for (k = 0; k < weight.Length; k++)
-                {
-                    for (int j = 0; j < weight[k].GetLength(1); j++)
-                    {
-                        for (int i = 0; i < weight[k].GetLength(0); i++)
-                        {
-                            weight[k][i, j] += -step * layers[k][i] * errors[k + 1][j];
-                        }
-                    }
-                }
-            }
-        }
-
-        public override int Train(Sample sample, double acceptableError, bool parallel)
-        {
-            this.parallel = parallel;
-            int ret = 0;
-            double estimatedError = 0;
-            
             stopWatch.Restart();
-
-            while(true){
-                if(Predict(sample) == sample.actualClass && 
-                    (estimatedError = sample.EstimatedError()) < acceptableError)
-                {
-                    OnTrainProgress(1.0, estimatedError, stopWatch.Elapsed);
-                    stopWatch.Stop();
-                    return ret;
-                }
-                else
-                {
-                    ret++;
-                    BackPropagation((uint)sample.actualClass);
-                }
-                OnTrainProgress(Math.Min(estimatedError / acceptableError, 1.0), estimatedError, stopWatch.Elapsed);
-            }         
-        }
-
-        public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError, bool parallel)
-        {
-            this.parallel = parallel;
-            double estimatedError = 0;
-
-            stopWatch.Restart();
-            
-            for (int i = 0; i < epochsCount; i++)
+            double error;
+            int epoch = 0;
+            while (true)
             {
-                estimatedError = 0;
-                foreach (var sample in samplesSet.samples)
-                {
-                    Predict(sample);
-                    estimatedError += sample.EstimatedError();             
-                    BackPropagation((uint)sample.actualClass);         
-                }
-                OnTrainProgress((i * 1.0) / epochsCount, estimatedError / samplesSet.Count, stopWatch.Elapsed);
-                if (estimatedError / samplesSet.Count < acceptableError)
-                {
-                    OnTrainProgress(1.0, estimatedError / samplesSet.Count, stopWatch.Elapsed);
-                    stopWatch.Stop();
-                    return estimatedError / samplesSet.Count;
-                }
+                epoch++;
+                error = parallel ? TrainingRunParallel(samplesSet) : TrainingRun(samplesSet);
+                OnTrainProgress((epoch * 1.0) / epochsCount, error, stopWatch.Elapsed);
+
+                if (epoch >= epochsCount || error <= acceptableError) break;
             }
-            OnTrainProgress(1.0, estimatedError / samplesSet.Count, stopWatch.Elapsed);
+            OnTrainProgress(1.0, error, stopWatch.Elapsed);
             stopWatch.Stop();
-            return estimatedError / samplesSet.Count;
+            return error;
         }
 
         protected override double[] Compute(double[] input)
         {
-            for (int i = 0; i < input.Length; i++) layers[0][i] = input[i];
-            //layers[0] = input;
-            PushForward();
-            return layers.Last();
+            return Predict(input).Last();
+        }
+
+        private readonly object lockObject = new object();
+
+        private double TrainingRun(SamplesSet samples)
+        {
+            int batchCount = (samples.Count + batchSize - 1) / batchSize;
+
+            double summaryError = 0.0;
+            for (int i = 0; i < batchCount; i++)
+            {
+                var currentBatch = samples.samples.Skip(i * batchSize).Take(batchSize).ToArray();
+
+                var outputs = new double[currentBatch.Length][][];
+
+                for (int sampleIdx = 0; sampleIdx < currentBatch.Length; sampleIdx++)
+                {
+                    outputs[sampleIdx] = Predict(currentBatch[sampleIdx].input);
+                    currentBatch[sampleIdx].ProcessPrediction(outputs[sampleIdx].Last());
+                    summaryError += currentBatch[sampleIdx].EstimatedError();
+                }
+
+                var errors = Backpropagate(currentBatch, outputs);
+
+                UpdateWeightsAndBiases(outputs, errors);
+            }
+
+            return summaryError;
+        }
+        private double TrainingRunParallel(SamplesSet samples)
+        {
+            int batchCount = (samples.Count + batchSize - 1) / batchSize;
+
+            var batches = new Sample[batchCount][];
+
+            for (int i = 0; i < batchCount; i++)
+                batches[i] = samples.samples.Skip(i * batchSize).Take(batchSize).ToArray();
+
+            for (int i = 0; i < batchCount; i++)
+            {
+                var currentBatch = batches[i];
+
+                var outputs = new double[currentBatch.Length][][];
+
+                Parallel.For(0, currentBatch.Length, sampleIdx =>
+                {
+                    outputs[sampleIdx] = PredictParallel(currentBatch[sampleIdx].input);
+                    currentBatch[sampleIdx].ProcessPrediction(outputs[sampleIdx].Last());
+                });
+
+                var errors = BackpropagateParallel(currentBatch, outputs);
+
+                UpdateWeightsAndBiasesParallel(outputs, errors);
+            }
+
+            double summaryError = 0.0;
+            for (int i = 0; i < batchCount; i++)
+                for (int sampleIdx = 0; sampleIdx < batches[i].Length; sampleIdx++)
+                    summaryError += batches[i][sampleIdx].EstimatedError();
+
+            return summaryError;
+        }
+
+        private double[][] PredictParallel(double[] input)
+        {
+            double[][] layersOutput = new double[layers.Count + 1][];
+            layersOutput[0] = input;
+
+            for (int layer = 0; layer < layers.Count; layer++)
+            {
+                layersOutput[layer + 1] = new double[layers[layer].biases.Length];
+
+                Parallel.For(0, layers[layer].biases.Length, currNeuronIdx =>
+                {
+                    double sum = 0.0;
+
+                    for (int prevNeuronIdx = 0; prevNeuronIdx < layers[layer].weights.GetLength(0); prevNeuronIdx++)
+                        sum += layers[layer].weights[prevNeuronIdx, currNeuronIdx] * layersOutput[layer][prevNeuronIdx];
+
+                    layersOutput[layer + 1][currNeuronIdx] = Activation(sum + layers[layer].biases[currNeuronIdx]);
+                });
+            }
+
+            return layersOutput;
+        }
+
+        private double[][][] BackpropagateParallel(Sample[] currentBatch, double[][][] outputs)
+        {
+            var errors = new double[currentBatch.Length][][];
+            Parallel.For(0, currentBatch.Length, sampleIdx =>
+            {
+                errors[sampleIdx] = new double[layers.Count][];
+
+                errors[sampleIdx][layers.Count - 1] = new double[layers.Last().biases.Length];
+                for (int currNeuronIdx = 0; currNeuronIdx < layers.Last().biases.Length; currNeuronIdx++)
+                {
+                    var expectedOutput = (int)currentBatch[sampleIdx].actualClass == currNeuronIdx ? 1 : 0;
+                    var output = outputs[sampleIdx].Last()[currNeuronIdx];
+
+                    errors[sampleIdx].Last()[currNeuronIdx] = (output - expectedOutput) * ActivationDerivative(output);
+                }
+
+
+                for (int layerIdx = layers.Count - 2; layerIdx >= 0; layerIdx--)
+                {
+                    errors[sampleIdx][layerIdx] = new double[layers[layerIdx].biases.Length];
+
+                    Parallel.For(0, layers[layerIdx].biases.Length, prevNeuronIdx =>
+                    {
+                        double sum = 0.0;
+
+                        for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx + 1].weights.GetLength(1); currNeuronIdx++)
+                            sum += layers[layerIdx + 1].weights[prevNeuronIdx, currNeuronIdx] * errors[sampleIdx][layerIdx + 1][currNeuronIdx];
+
+                        errors[sampleIdx][layerIdx][prevNeuronIdx] = sum * ActivationDerivative(outputs[sampleIdx][layerIdx + 1][prevNeuronIdx]);
+                    });
+
+                }
+            });
+            return errors;
+        }
+        private void UpdateWeightsAndBiasesParallel(double[][][] outputs, double[][][] errors)
+        {
+            Parallel.For(0, layers.Count, layerIdx =>
+            {
+                var deltaLayer = new NNLayer
+                {
+                    weights = new double[layers[layerIdx].weights.GetLength(0), layers[layerIdx].weights.GetLength(1)],
+                    biases = new double[layers[layerIdx].biases.Length]
+                };
+
+                Parallel.For(0, layers[layerIdx].biases.Length, nextNeuronIdx =>
+                {
+
+                    for (int sampleIdx = 0; sampleIdx < errors.Length; sampleIdx++)
+                    {
+                        deltaLayer.biases[nextNeuronIdx] += errors[sampleIdx][layerIdx][nextNeuronIdx];
+
+                        for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx].weights.GetLength(0); currNeuronIdx++)
+                            deltaLayer.weights[currNeuronIdx, nextNeuronIdx] += errors[sampleIdx][layerIdx][nextNeuronIdx] * outputs[sampleIdx][layerIdx][currNeuronIdx];
+                    }
+
+                    layers[layerIdx].biases[nextNeuronIdx] -= learningRate * deltaLayer.biases[nextNeuronIdx];
+
+                    for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx].weights.GetLength(0); currNeuronIdx++)
+                        layers[layerIdx].weights[currNeuronIdx, nextNeuronIdx] -= learningRate * deltaLayer.weights[currNeuronIdx, nextNeuronIdx];
+                });
+            });
+        }
+
+        private double[][] Predict(double[] input)
+        {
+            double[][] layersOutput = new double[layers.Count + 1][];
+            layersOutput[0] = input;
+
+            for (int layer = 0; layer < layers.Count; layer++)
+            {
+                layersOutput[layer + 1] = new double[layers[layer].biases.Length];
+
+                for (int currNeuronIdx = 0; currNeuronIdx < layers[layer].biases.Length; currNeuronIdx++)
+                {
+                    double sum = 0.0;
+
+                    for (int prevNeuronIdx = 0; prevNeuronIdx < layers[layer].weights.GetLength(0); prevNeuronIdx++)
+                        sum += layers[layer].weights[prevNeuronIdx, currNeuronIdx] * layersOutput[layer][prevNeuronIdx];
+
+                    layersOutput[layer + 1][currNeuronIdx] = Activation(sum + layers[layer].biases[currNeuronIdx]);
+                }
+            }
+
+            return layersOutput;
+        }
+
+        private double[][][] Backpropagate(Sample[] currentBatch, double[][][] outputs)
+        {
+            var errors = new double[currentBatch.Length][][];
+            for (int sampleIdx = 0; sampleIdx < currentBatch.Length; sampleIdx++)
+            {
+                errors[sampleIdx] = new double[layers.Count][];
+
+                errors[sampleIdx][layers.Count - 1] = new double[layers.Last().biases.Length];
+                for (int currNeuronIdx = 0; currNeuronIdx < layers.Last().biases.Length; currNeuronIdx++)
+                {
+                    var expectedOutput = (int)currentBatch[sampleIdx].actualClass == currNeuronIdx ? 1 : 0;
+                    var output = outputs[sampleIdx].Last()[currNeuronIdx];
+
+                    errors[sampleIdx].Last()[currNeuronIdx] = (output - expectedOutput) * ActivationDerivative(output);
+                }
+
+                for (int layerIdx = layers.Count - 2; layerIdx >= 0; layerIdx--)
+                {
+                    errors[sampleIdx][layerIdx] = new double[layers[layerIdx].biases.Length];
+                    for (int prevNeuronIdx = 0; prevNeuronIdx < layers[layerIdx].biases.Length; prevNeuronIdx++)
+                    {
+                        double sum = 0.0;
+
+                        for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx + 1].weights.GetLength(1); currNeuronIdx++)
+                            sum += layers[layerIdx + 1].weights[prevNeuronIdx, currNeuronIdx] * errors[sampleIdx][layerIdx + 1][currNeuronIdx];
+
+                        errors[sampleIdx][layerIdx][prevNeuronIdx] = sum * ActivationDerivative(outputs[sampleIdx][layerIdx + 1][prevNeuronIdx]);
+                    }
+
+                }
+            }
+            return errors;
+        }
+        private void UpdateWeightsAndBiases(double[][][] outputs, double[][][] errors)
+        {
+            for (int layerIdx = 0; layerIdx < layers.Count; layerIdx++)
+            {
+                var deltaLayer = new NNLayer
+                {
+                    weights = new double[layers[layerIdx].weights.GetLength(0), layers[layerIdx].weights.GetLength(1)],
+                    biases = new double[layers[layerIdx].biases.Length]
+                };
+                for (int nextNeuronIdx = 0; nextNeuronIdx < layers[layerIdx].biases.Length; nextNeuronIdx++)
+                {
+
+                    for (int sampleIdx = 0; sampleIdx < errors.Length; sampleIdx++)
+                    {
+                        deltaLayer.biases[nextNeuronIdx] += errors[sampleIdx][layerIdx][nextNeuronIdx];
+
+                        for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx].weights.GetLength(0); currNeuronIdx++)
+                            deltaLayer.weights[currNeuronIdx, nextNeuronIdx] += errors[sampleIdx][layerIdx][nextNeuronIdx] * outputs[sampleIdx][layerIdx][currNeuronIdx];
+                    }
+
+                    layers[layerIdx].biases[nextNeuronIdx] -= learningRate * deltaLayer.biases[nextNeuronIdx];
+
+                    for (int currNeuronIdx = 0; currNeuronIdx < layers[layerIdx].weights.GetLength(0); currNeuronIdx++)
+                        layers[layerIdx].weights[currNeuronIdx, nextNeuronIdx] -= learningRate * deltaLayer.weights[currNeuronIdx, nextNeuronIdx];
+                }
+            }
         }
     }
 }

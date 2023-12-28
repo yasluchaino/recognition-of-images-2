@@ -1,5 +1,7 @@
 ﻿using AIMLbot;
+using AIMLbot.AIMLTagHandlers;
 using AIMLbot.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -13,7 +15,6 @@ namespace AIMLTGBot
 
         public AIMLService()
         {
-
             string root = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
             bot = new Bot();
             bot.loadSettings($"{root}\\config\\Settings.xml");
@@ -42,9 +43,8 @@ namespace AIMLTGBot
             }
             if (phrase.Contains("анекдот"))
             {
-                isInTrap[userId] = true;
-            }
-            else if (phrase == "заплакать")
+                isInTrap[userId] = true;          
+            } else if (phrase == "заплакать")
             {
                 isInTrap[userId] = false;
             }

@@ -1,10 +1,14 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Accord.Neuro;
 using Accord.Neuro.Learning;
 
-namespace NeuralNetwork1
+namespace AIMLTGBot
 {
     class AccordNet : BaseNetwork
     {
@@ -35,7 +39,7 @@ namespace NeuralNetwork1
         /// </summary>
         /// <param name="sample"></param>
         /// <returns>Количество итераций для достижения заданного уровня ошибки</returns>
-        public override int Train(Sample sample, double acceptableError, bool parallel)
+        public override int Train(Sample sample, double acceptableError, bool parallel, double learningRate)
         {
             var teacher = MakeTeacher(parallel);
 
@@ -57,7 +61,7 @@ namespace NeuralNetwork1
         }
 
         public override double TrainOnDataSet(SamplesSet samplesSet, int epochsCount, double acceptableError,
-            bool parallel)
+            bool parallel, double learningRate)
         {
             //  Сначала надо сконструировать массивы входов и выходов
             double[][] inputs = new double[samplesSet.Count][];

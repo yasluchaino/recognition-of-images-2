@@ -1,34 +1,47 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-
-using System.Drawing;
-using NeuralNetwork1;
+using AForge;
 
 namespace AIMLTGBot
 {
     public class TelegramService : IDisposable
     {
+        static string currentPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
         private readonly TelegramBotClient client;
         private readonly AIMLService aiml;
-        private readonly BaseNetwork net1;
-        private readonly BaseNetwork net2;
         // CancellationToken - инструмент для отмены задач, запущенных в отдельном потоке
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public string Username { get; }
-
+        private DataSet dataHolder = new DataSet();
+        private MagicEye processor = new MagicEye();
+        private BaseNetwork network1 = new AccordNet(new int[] { 2304, 500, 100, 8 });
+        private BaseNetwork network2 = new StudentNetwork(new int[] { 2304, 500, 100, 8 });
         public TelegramService(string token, AIMLService aimlService)
         {
+            dataHolder.loadData(
+                $"{currentPath}\\data\\train",
+                $"{currentPath}\\data\\train",
+                $"{currentPath}\\data\\train.txt",
+                $"{currentPath}\\data\\train.txt"
+            );
+            network1.TrainOnDataSet(dataHolder.trainData, 30, 1e-9, true, 1e-1);
+            network2.TrainOnDataSet(dataHolder.trainData, 300, 1e-9, true, 1e-1);
+            double accuracy1 = dataHolder.testData.TestNeuralNetwork(network1);
+            double accuracy2 = dataHolder.testData.TestNeuralNetwork(network2);
+            Console.WriteLine(accuracy1.ToString());
+            Console.WriteLine(accuracy2.ToString());
             aiml = aimlService;
-            net1 = new AccordNet(new int[]{ 56, 300,8});
-            net2 = new StudentNetwork(new int[] { 56, 28, 14, 8 });
             client = new TelegramBotClient(token);
             client.StartReceiving(HandleUpdateMessageAsync, HandleErrorAsync, new ReceiverOptions
             {   // Подписываемся только на сообщения
@@ -37,17 +50,7 @@ namespace AIMLTGBot
             cancellationToken: cts.Token);
             // Пробуем получить логин бота - тестируем соединение и токен
             Username = client.GetMeAsync().Result.Username;
-           //сразу обучим 
-                Console.WriteLine("Обучение...");
-                SamplesSet s = DataSet.GetDataSet();
-                net1.TrainOnDataSet(s, 30, 0.0005, true);
-                Console.WriteLine("Точность: " + net1.GetAccuracy(s));
-                net2.TrainOnDataSet(s, 300, 0.0005, true);
-                Console.WriteLine("Точность: " + net2.GetAccuracy(s));
-
-                Console.WriteLine("Обучение завершено");
-
-                    }
+        }
 
         async Task HandleUpdateMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -56,13 +59,24 @@ namespace AIMLTGBot
             var username = message.Chat.FirstName;
             if (message.Type == MessageType.Text)
             {
-                var messageText = update.Message.Text;          
-                Console.WriteLine($"Received a '{messageText}' message in chat {chatId} with {username}.");
+                var messageText = update.Message.Text;
 
+                Console.WriteLine($"Received a '{messageText}' message in chat {chatId} with {username}.");
+                var qInd = messageText.LastIndexOf('?');
+                string formattedMessageText = messageText.Replace('ё','е');
+                if (qInd != -1)
+                {
+                    formattedMessageText = messageText.Insert(qInd, " ");
+                }
+                string answer = aiml.Talk(chatId, username, formattedMessageText);
+                if (answer.Trim() == "")
+                {
+                    answer = "Не совсем уловил мысль";
+                }
                 // Echo received message text
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: aiml.Talk(chatId, username, messageText),
+                    text: answer,
                     cancellationToken: cancellationToken);
                 return;
             }
@@ -77,92 +91,82 @@ namespace AIMLTGBot
                 // Но вместо этого пошлём картинку назад
                 // Стрим помнит последнее место записи, мы же хотим теперь прочитать с самого начала
                 imageStream.Seek(0, 0);
-                var bmp = new System.Drawing.Bitmap(System.Drawing.Image.FromStream(imageStream));
-                bmp = ImageHelper.MakeBW(bmp);
-                bmp = ImageHelper.Invert(bmp);
-                bmp = ImageHelper.CutSquare(bmp);
-                bmp = ImageHelper.CutContent(bmp);
-                bmp = ImageHelper.Resize(bmp, new Size(28, 28));
-                var sample1 = new Sample(ImageHelper.GetArray(bmp), 8);
-                var sample2 = new Sample(ImageHelper.GetArray(bmp), 8);
-                var res = net1.Predict(sample1);
-                var res2 = net2.Predict(sample2);
-                //Console.WriteLine("Accord result is " + res);
-                //Console.WriteLine("Student result is " + res2);
-                MemoryStream newImg = new MemoryStream();
-                bmp.Save(newImg, System.Drawing.Imaging.ImageFormat.Jpeg);
-                newImg.Seek(0, 0);
-
+                var image = new Bitmap(Image.FromStream(imageStream));
+                processor.ProcessImage(image, false);
+                var processedImage = processor.processed;
+                var sample = bitmapToSample(processedImage);
+                var res1 = network1.Predict(sample);
+                var res2 = network2.Predict(sample);
                 string prediction1 = "undef";
-                switch (res)
+                string prediction2 = "undef";
+
+                processedImage.Save($"{currentPath}//predicted.png", System.Drawing.Imaging.ImageFormat.Png);
+                switch (res1)
                 {
-                    case FigureType.Happy:
+                  case SymbolType.Happy:
                         prediction1 = "happy";
                         break;
-                    case FigureType.Angry:
+                    case SymbolType.Angry:
                         prediction1 = "angry";
-                        break;
-                    case FigureType.Sad:
+                        break;  
+                    case SymbolType.Sad:
                         prediction1 = "sad";
                         break;
-                    case FigureType.Tongue:
+                    case SymbolType.Tongue:
                         prediction1 = "tongue";
                         break;
-                    case FigureType.PokerFace:
+                    case SymbolType.PokerFace:
                         prediction1 = "pokerface";
                         break;
-                    case FigureType.Smile:
+                    case SymbolType.Smile:
                         prediction1 = "smile";
                         break;
-                    case FigureType.Surprised:
+                    case SymbolType.Surprised:
                         prediction1 = "surprised";
                         break;
-                    case FigureType.Wink:
+                    case SymbolType.Wink:
                         prediction1 = "wink";
                         break;
-                    case FigureType.Undef:
+                    case SymbolType.Undef:
                         prediction1 = "undef";
                         break;
                 }
                 var answer1 = aiml.Talk(chatId, username, $"predicted {prediction1}");
-
-                string prediction2 = "undef";
                 switch (res2)
                 {
-                    case FigureType.Happy:
+                    case SymbolType.Happy:
                         prediction2 = "happy";
                         break;
-                    case FigureType.Angry:
+                    case SymbolType.Angry:
                         prediction2 = "angry";
                         break;
-                    case FigureType.Sad:
+                    case SymbolType.Sad:
                         prediction2 = "sad";
                         break;
-                    case FigureType.Tongue:
+                    case SymbolType.Tongue:
                         prediction2 = "tongue";
                         break;
-                    case FigureType.PokerFace:
+                    case SymbolType.PokerFace:
                         prediction2 = "pokerface";
                         break;
-                    case FigureType.Smile:
+                    case SymbolType.Smile:
                         prediction2 = "smile";
                         break;
-                    case FigureType.Surprised:
+                    case SymbolType.Surprised:
                         prediction2 = "surprised";
                         break;
-                    case FigureType.Wink:
+                    case SymbolType.Wink:
                         prediction2 = "wink";
                         break;
-                    case FigureType.Undef:
+                    case SymbolType.Undef:
                         prediction2 = "undef";
                         break;
                 }
                 var answer2 = aiml.Talk(chatId, username, $"predicted {prediction2}");
-                await client.SendPhotoAsync(
+                await client.SendTextMessageAsync(
                     message.Chat.Id,
-                    newImg,
-                    "Accord: " + answer1 + '\n' +
-                    "Student: " + answer2+'\n',
+                       "Accord: " + answer1 + '\n' +
+                   "Student: " + answer2 + '\n',
                     cancellationToken: cancellationToken
                 );
                 return;
@@ -178,6 +182,35 @@ namespace AIMLTGBot
                 await client.SendTextMessageAsync(message.Chat.Id, aiml.Talk(chatId, username, "Аудио"), cancellationToken: cancellationToken);
                 return;
             }
+            if (message.Type == MessageType.Voice)
+            {
+                await client.SendTextMessageAsync(message.Chat.Id, aiml.Talk(chatId, username, "Войс"), cancellationToken: cancellationToken);
+                return;
+            }
+        }
+
+        Sample bitmapToSample(Bitmap processed)
+        {
+            Rectangle rect = new Rectangle(0, 0, processed.Width, processed.Height);
+            BitmapData bmpData = processed.LockBits(rect, ImageLockMode.ReadOnly, processed.PixelFormat);
+            double[] input = new double[48 * 48];
+            unsafe
+            {
+                byte* ptr = (byte*)bmpData.Scan0;
+                int heightInPixels = bmpData.Height;
+                int widthInBytes = bmpData.Stride;
+                for (int y = 0; y < heightInPixels; y++)
+                {
+                    for (int x = 0; x < widthInBytes; x = x + 1)
+                    {
+                        double grayValue = ptr[(y * bmpData.Stride) + x] / 255.0;
+                        input[(y * bmpData.Stride) + x] = grayValue;
+
+                    }
+                }
+            }
+            Sample sample = new Sample(input, 8);
+            return sample;
         }
 
         Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
